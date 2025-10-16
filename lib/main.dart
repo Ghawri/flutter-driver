@@ -8,7 +8,7 @@ import 'functions/functions.dart';
 import 'functions/notifications.dart';
 import 'pages/loadingPage/loadingpage.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:bubble_head/bubble.dart';
+import 'widgets/bubble_stub.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:io';
 

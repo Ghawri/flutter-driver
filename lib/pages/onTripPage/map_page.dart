@@ -3,7 +3,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:ui' as ui;
-import 'package:dash_bubble/dash_bubble.dart';
+import 'package:flutter_driver/widgets/dash_bubble_stub.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';

@@ -1,4 +1,4 @@
-import 'package:contacts_service/contacts_service.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_driver/pages/login/landingpage.dart';
 import 'package:flutter_driver/pages/login/login.dart';
@@ -38,35 +38,28 @@ class _PickContactState extends State<PickContact> {
 
 //get contact permission
   getContactPermission() async {
-    var status = await Permission.contacts.status;
-    // if (status != PermissionStatus.granted) {
-    //   status = await Permission.contacts.request();
-    // }
-    return status;
+    return await FlutterContacts.requestPermission(readonly: true);
   }
 
 //fetch contact data
   getContact() async {
     if (contacts.isEmpty) {
-      var permission = await getContactPermission();
-      if (permission == PermissionStatus.granted) {
+      final granted = await getContactPermission();
+      if (granted) {
         if (mounted) {
           setState(() {
             _isLoading = true;
           });
         }
-
-        Iterable<Contact> contactsList = await ContactsService.getContacts();
-
-        // ignore: avoid_function_literals_in_foreach_calls
-        contactsList.forEach((contact) {
-          contact.phones!.toSet().forEach((phone) {
+        final contactsList = await FlutterContacts.getContacts(withProperties: true);
+        for (final contact in contactsList) {
+          for (final phone in contact.phones) {
             contacts.add({
-              'name': contact.displayName ?? contact.givenName,
-              'phone': phone.value
+              'name': contact.displayName ?? contact.name.first,
+              'phone': phone.number
             });
-          });
-        });
+          }
+        }
         if (mounted) {
           setState(() {
             _isLoading = false;
