@@ -909,8 +909,8 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                                             _error = 'Please enter valid mobile number';
                                                           });
                                                         } else if (otpSent == false) {
-                                                          print("_mobile.text ${_mobile.text}");
-                                                          print("_name.text ${_name.text}");
+                                                          debugPrint("_mobile.text ${_mobile.text}");
+                                                          debugPrint("_name.text ${_name.text}");
 
                                                           await registerDriver(_mobile.text, '+91', _name.text);
                                                         } else {
@@ -923,8 +923,8 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                                               _error = 'Please enter OTP';
                                                             });
                                                           } else if (_otp.text != getotp.toString()) {
-                                                            print('_otp.text ${_otp.text}');
-                                                            print('getotp=== $getotp');
+                                                            debugPrint('_otp.text ${_otp.text}');
+                                                            debugPrint('getotp=== $getotp');
 
                                                             setState(() {
                                                               _error = 'Please enter Valid OTP';
@@ -933,8 +933,8 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                                             setState(() {
                                                               _error = '';
                                                             });
-                                                            print('_otp.text 2 ${_otp.text}');
-                                                            print('getotp 2 $getotp');
+                                                            debugPrint('_otp.text 2 ${_otp.text}');
+                                                            debugPrint('getotp 2 $getotp');
 
                                                             await verifyOTP(_mobile.text, _otp.text);
                                                           }
@@ -1020,7 +1020,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                                                               ],
                                                             ),
                                                           Button(
-                                                            text: 'Get OTP',
+                                                           text: otpSent == true ? 'Verify OTP' : 'Get OTP',
                                                             onTap: () async {
                                                               if (_mobile.text.isEmpty) {
                                                                 setState(() {

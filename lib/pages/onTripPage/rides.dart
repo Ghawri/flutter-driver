@@ -128,7 +128,7 @@ class _RidePageState extends State<RidePage> with WidgetsBindingObserver {
         locationAllowed = false;
         if (userDetails['active'] == true) {
           var val = await driverStatus();
-          if (val == 'logout') {
+          if (val == 'logout' || val == 'token_expired') {
             navigateLogout();
           }
         }
@@ -162,7 +162,7 @@ class _RidePageState extends State<RidePage> with WidgetsBindingObserver {
 
       if (makeOnline == true && userDetails['active'] == false) {
         var val = await driverStatus();
-        if (val == 'logout') {
+        if (val == 'logout' || val == 'token_expired') {
           navigateLogout();
         }
       }
@@ -395,7 +395,7 @@ class _RidePageState extends State<RidePage> with WidgetsBindingObserver {
                                                         });
                                                         var val =
                                                             await driverStatus();
-                                                        if (val == 'logout') {
+                                                        if (val == 'logout' || val == 'token_expired') {
                                                           navigateLogout();
                                                         }
                                                         setState(() {
@@ -422,7 +422,7 @@ class _RidePageState extends State<RidePage> with WidgetsBindingObserver {
                                                           });
                                                           var val =
                                                               await driverStatus();
-                                                          if (val == 'logout') {
+                                                          if (val == 'logout' || val == 'token_expired') {
                                                             navigateLogout();
                                                           }
                                                           setState(() {
@@ -1430,7 +1430,7 @@ class _RidePageState extends State<RidePage> with WidgetsBindingObserver {
                                             'show_instant_ride_feature_on_mobile_app'] ==
                                         '1')
                                 ? Positioned(
-                                    bottom: media.width * 0.05,
+                                    bottom: media.width * 0.10,
                                     left: media.width * 0.05,
                                     right: media.width * 0.05,
                                     child: Row(

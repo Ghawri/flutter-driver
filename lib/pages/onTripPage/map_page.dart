@@ -184,7 +184,7 @@ class _MapsState extends State<Maps>
         userDetails['active'] == true) {
      
         var val = await driverStatus();
-        if (val == 'logout') {
+        if (val == 'logout' || val == 'token_expired') {
           navigateLogout();
         }
       
@@ -609,7 +609,7 @@ class _MapsState extends State<Maps>
 
       if (makeOnline == true && userDetails['active'] == false) {
         var val = await driverStatus();
-        if (val == 'logout') {
+        if (val == 'logout' || val == 'token_expired') {
           navigateLogout();
         }
       }
@@ -2883,7 +2883,7 @@ class _MapsState extends State<Maps>
                                                             ? Positioned(
                                                                 bottom:
                                                                     media.width *
-                                                                        0.05,
+                                                                        0.10,
                                                                 left: media.width *
                                                                     0.05,
                                                                 right: media

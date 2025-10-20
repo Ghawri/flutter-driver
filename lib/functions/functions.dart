@@ -445,6 +445,56 @@ darktheme() async {
 String lastNotification = '';
 List requestDriverList = [];
 
+// Session management functions
+bool isSessionValid = true;
+DateTime? lastTokenValidation;
+
+// Check if session is still valid
+Future<bool> isSessionStillValid() async {
+  if (!isSessionValid) return false;
+  
+  // If we haven't validated recently, check the token
+  if (lastTokenValidation == null || 
+      DateTime.now().difference(lastTokenValidation!).inMinutes > 30) {
+    try {
+      var response = await http.get(
+        Uri.parse('${url}api/v1/user'),
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${bearerToken[0].token}'},
+      );
+      
+      if (response.statusCode == 200) {
+        lastTokenValidation = DateTime.now();
+        isSessionValid = true;
+        return true;
+      } else if (response.statusCode == 401) {
+        // Token expired
+        isSessionValid = false;
+        lastTokenValidation = null;
+        // Clear stored session data
+        pref.remove('Bearer');
+        pref.setBool('isLogin', false);
+        bearerToken.clear();
+        return false;
+      }
+    } catch (e) {
+      // Network error - assume session is still valid
+      return true;
+    }
+  }
+  
+  return isSessionValid;
+}
+
+// Clear session data
+void clearSession() {
+  isSessionValid = false;
+  lastTokenValidation = null;
+  bearerToken.clear();
+  userDetails.clear();
+  pref.remove('Bearer');
+  pref.setBool('isLogin', false);
+}
+
 getLocalData() async {
   dynamic result;
   bearerToken.clear;
@@ -485,6 +535,12 @@ getLocalData() async {
                 platforms.invokeMethod('login');
               }
               result = '3';
+            } else if (responce == 'token_expired') {
+              // Token expired - clear stored token and redirect to login
+              debugPrint("Token expired during session restoration - clearing stored token");
+              pref.remove('Bearer');
+              pref.setBool('isLogin', false);
+              result = '2';
             } else {
               result = '2';
             }
@@ -1610,7 +1666,9 @@ getUserDetails() async {
       valueNotifierHome.incrementNotifier();
     }
     else if (response.statusCode == 401) {
-      result = 'logout';
+      // Token expired - try to refresh or clear session
+      debugPrint("Token expired - attempting to handle gracefully");
+      result = 'token_expired';
     } else {
       debugPrint(response.body);
       result = false;
@@ -1730,7 +1788,11 @@ driverStatus() async {
       }
       valueNotifierHome.incrementNotifier();
     } else if (response.statusCode == 401) {
-      result = 'logout';
+      // Token expired - handle gracefully
+      debugPrint("Token expired in driverStatus - clearing session");
+      pref.remove('Bearer');
+      pref.setBool('isLogin', false);
+      result = 'token_expired';
     } else {
       debugPrint("response---> ${response.body}");
       result = false;
@@ -1756,6 +1818,16 @@ currentPositionUpdate() async {
 
   Timer.periodic(const Duration(seconds: 5), (timer) async {
     if (userDetails.isNotEmpty && userDetails['role'] == 'driver') {
+      // Check session validity every 5 minutes
+      if (DateTime.now().difference(lastTokenValidation ?? DateTime(1970)).inMinutes >= 5) {
+        bool sessionValid = await isSessionStillValid();
+        if (!sessionValid) {
+          debugPrint("Session expired - stopping location updates");
+          timer.cancel();
+          return;
+        }
+      }
+      
       serviceEnabled =
           await geolocs.GeolocatorPlatform.instance.isLocationServiceEnabled();
       permission = await geolocs.GeolocatorPlatform.instance.checkPermission();
@@ -4075,7 +4147,7 @@ userLogout() async {
       rideStreamChanges = null;
       requestStreamStart = null;
       requestStreamEnd = null;
-      pref.remove('Bearer');
+      clearSession();
       result = 'success';
     } else if (response.statusCode == 401) {
       result = 'logout';
